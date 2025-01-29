@@ -32,6 +32,9 @@ def train_test_split(tokenizer_ids: list[int], device):
 # data loading
 def get_batch(split: str, data: torch.tensor, block_size: int, batch_size: int, device):
     """function used for creating batches of data"""
+    # set random seed
+    torch.manual_seed(9090)
+
     # generate a small batch of data of inputs x and target y
     data = data if split == "train" else data
     # generate batch size number of random offsets
