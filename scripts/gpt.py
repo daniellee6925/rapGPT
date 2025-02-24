@@ -13,7 +13,7 @@ batch_size = 16  # how many independent sequences will be processed in parallel
 block_size = 512  # maximum context length (tokens)
 max_iters = 5000
 eval_interval = 500
-learning_rate = 3e-4
+learning_rate = 1e-5
 eval_iters = 200
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 n_embd = 512  # dimension of token embedding
@@ -38,18 +38,16 @@ class Head(nn.Module):
         # used for masking upper right triangle of matrix
         self.register_buffer("tril", torch.tril(torch.ones(block_size, block_size)))
         self.dropout = nn.Dropout(dropout)
-        self.head_size = head_size
 
     def forward(self, x):  # x: input for the model
         B, T, C = x.shape
-        k = self.key(x)  # (B, T, head_size)
-        q = self.query(x)  # (B, T, head_size)
-
+        k = self.key(x)  # (B, T, C)
+        q = self.query(x)  # (B, T, C)
         # compute attention score
         # (B, T, head_size) * (B, head_size, T) -> (B, T, T), # divide by sqrt(dim)
-        attn_score = k @ q.transpose(-2, -1) * self.head_size**-0.5
+        attn_score = q @ k.transpose(-2, -1) * C**-0.5
         # mask upper right triangle by converting 0 -> -inf for softmax
-        attn_score = attn_score.masked_fill(self.tril[:T, :T] == 0, float("inf"))
+        attn_score = attn_score.masked_fill(self.tril[:T, :T] == 0, float("-inf"))
         attn_score = F.softmax(attn_score, dim=-1)  # normalize using softmax
         attn_score = self.dropout(attn_score)  # apply dropout
 
@@ -125,26 +123,40 @@ class rapGPTModel(nn.Module):
     def __init__(self):
         super().__init__()
         # creates embedding with vocab size and embedding dim of n_embd
-        self.token_embeddings_table = nn.Embedding(
-            num_embeddings=vocab_size, embedding_dim=n_embd
-        )
-        self.positional_embeddings_table = nn.Embedding(
-            num_embeddings=block_size, embedding_dim=n_embd
-        )
+        self.token_embeddings_table = nn.Embedding(vocab_size, n_embd)
+        self.position_embedding_table = nn.Embedding(block_size, n_embd)
+
         # create blocks with n_layers (ex 6 blocks of self attention and feedforward)
         self.blocks = nn.Sequential(*[Block(n_embd, n_head) for _ in range(n_layer)])
         self.ln_f = nn.LayerNorm(n_embd)  # final layer norm
         # final linear layer with output dim vocab_size -> logits for each word
         self.lm_head = nn.Linear(n_embd, vocab_size)
 
+        # Apply Xavier Initialization to avoid NaNs
+        torch.nn.init.xavier_uniform_(self.token_embeddings_table.weight)
+        torch.nn.init.xavier_uniform_(self.position_embedding_table.weight)
+        torch.nn.init.xavier_uniform_(self.lm_head.weight)
+
     def forward(self, input_tokens, targets=None):
         B, T = input_tokens.shape
+
         # create token embeddings for each sample in the batch and block
         token_embedding = self.token_embeddings_table(input_tokens)  # (B, T, n_embd)
         # create positional embeddings for each token in the block
-        positional_embedding = self.token_embeddings_table(
+        positional_embedding = self.position_embedding_table(
             torch.arange(T, device=device)
         )  # (T, n_embd)
+
+        """
+        print(
+            "NaN in token_embeddings:",
+            torch.isnan(token_embedding).any().item(),
+        )
+        print(
+            "NaN in positional_embeddings:",
+            torch.isnan(positional_embedding).any().item(),
+        )
+        """
 
         # combine embeddings
         # (B, T, n_embd) + (T, n_embd) -> (B, T, n_embd): B is broadcasted

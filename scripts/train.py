@@ -11,18 +11,19 @@ import extract_data
 
 # ---------------------------------------------------------------------------------
 
-# hyperparameters for training
+# hyperparameters for training (same as gpt.py)
 batch_size = 8  # how many independent sequences will be processed in parallel
 block_size = 512  # maximum context length (tokens)
 max_iters = 5000
 eval_intervals = 500
-learning_rate = 3e-4
+learning_rate = 1e-4
 eval_iters = 200
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-n_embd = 384
-n_head = 6
-n_layer = 6
+n_embd = 512  # dimension of token embedding
+n_head = 8
+n_layer = 8
 dropout = 0.2
+vocab_size = 30000
 
 # ---------------------------------------------------------------------------------
 
@@ -39,7 +40,11 @@ def train(
 ):
     for iter in range(max_iters):
         xb, yb = x_train.to(device), y_train.to(device)
-        _, loss = model(xb, yb)
+        assert not torch.isnan(xb).any().item() or not torch.isnan(yb).any().item(), (
+            "NaN in inputs:"
+        )
+        logits, loss = model(xb, yb)
+
         optimizer.zero_grad(set_to_none=True)
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
@@ -88,7 +93,7 @@ def main():
     model = model.to(device)
 
     # create optimizer
-    optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, eps=1e-6)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, eps=1e-8)
 
     train(model, optimizer, x_train, y_train, device, max_iters, eval_intervals)
 
