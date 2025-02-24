@@ -9,7 +9,7 @@ from torch.nn import functional as F
 
 
 """Hyperparameters"""
-batch_size = 32  # how many independent sequences will be processed in parallel
+batch_size = 16  # how many independent sequences will be processed in parallel
 block_size = 512  # maximum context length (tokens)
 max_iters = 5000
 eval_interval = 500
