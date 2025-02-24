@@ -17,8 +17,8 @@ learning_rate = 3e-4
 eval_iters = 200
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 n_embd = 512  # dimension of token embedding
-n_head = 6
-n_layer = 6
+n_head = 8
+n_layer = 8
 dropout = 0.2
 vocab_size = 30000
 # ----------------------------------------
@@ -64,7 +64,7 @@ class MultiHeadAttention(nn.Module):
 
     def __init__(self, num_heads, head_size):
         super().__init__()
-        self.heads = nn.Module(Head(head_size) for _ in range(num_heads))
+        self.heads = nn.ModuleList(Head(head_size) for _ in range(num_heads))
         # combines head outputs and ensures input and output dimensions match
         self.proj = nn.Linear(in_features=n_embd, out_features=n_embd)
         self.dropout = nn.Dropout(p=dropout)

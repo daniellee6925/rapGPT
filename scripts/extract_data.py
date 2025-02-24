@@ -9,7 +9,7 @@ import re
 import torch
 
 
-def extract_data(device):
+def extract_lyrics(device):
     # read in data using pandas
     PATH = "Raw Data/Eminem_Lyrics.csv"
     data = pd.read_csv(PATH, sep="\t", comment="#", encoding="ISO-8859-1")
@@ -77,4 +77,4 @@ def extract_data(device):
 
 if __name__ == "__main__":
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    train_data, val_data = extract_data(device)
+    train_data, val_data = extract_lyrics(device)
