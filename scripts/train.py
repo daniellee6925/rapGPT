@@ -4,6 +4,7 @@ This is a python script for training the the rapGPT language model
 
 import torch
 import torch.nn as nn
+import gpt
 
 
 # Function to run training loop
@@ -43,3 +44,10 @@ def estimate_loss(
     losses.mean()
     model.train()  # set model back to train mode
     return losses
+
+
+if __name__ == "__main__":
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    # create model
+    model = gpt.rapGPTModel()
+    model = model.to(device)
