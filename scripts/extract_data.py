@@ -54,7 +54,7 @@ def extract_lyrics(device):
     # create tokenizer
     bpe_tokenizer = train_tokens.train_tokenizer(
         input_files=["Text File/cleaned_verse_only.txt"],
-        vocab_size=30000,
+        vocab_size=5000,
         tokenizer_type="bpe",
     )
 

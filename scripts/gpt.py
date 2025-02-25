@@ -10,17 +10,17 @@ from torch.nn import functional as F
 
 """Hyperparameters"""
 batch_size = 16  # how many independent sequences will be processed in parallel
-block_size = 512  # maximum context length (tokens)
+block_size = 256  # maximum context length (tokens)
 max_iters = 5000
-eval_interval = 500
+eval_intervals = 100
 learning_rate = 1e-5
 eval_iters = 200
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-n_embd = 512  # dimension of token embedding
-n_head = 8
-n_layer = 8
-dropout = 0.2
-vocab_size = 30000
+n_embd = 384  # dimension of token embedding
+n_head = 6
+n_layer = 6
+dropout = 0.3
+vocab_size = 5000
 # ----------------------------------------
 
 
