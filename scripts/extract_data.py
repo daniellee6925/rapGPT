@@ -54,7 +54,7 @@ def extract_lyrics(device):
     # create tokenizer
     bpe_tokenizer = train_tokens.train_tokenizer(
         input_files=["Text File/cleaned_verse_only.txt"],
-        vocab_size=5000,
+        vocab_size=3000,
         tokenizer_type="bpe",
     )
 
@@ -70,9 +70,9 @@ def extract_lyrics(device):
     print(f"Number of words: {num_words}")
     print(f"Number of Tokens: {len(bpe_tokenized_output.ids)}")
     print(
-        f"Shape of Train Data: {train_data.shape}, Shape of Validation Data: {val_data.shape}"
+        f"Number of tokens in Train Data: {train_data.shape[0]}, Number of tokens in Validation Data: {val_data.shape[0]}"
     )
-    return train_data, val_data
+    return train_data, val_data, bpe_tokenizer
 
 
 if __name__ == "__main__":

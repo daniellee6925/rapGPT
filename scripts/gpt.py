@@ -9,18 +9,20 @@ from torch.nn import functional as F
 
 
 """Hyperparameters"""
-batch_size = 16  # how many independent sequences will be processed in parallel
-block_size = 256  # maximum context length (tokens)
-max_iters = 5000
+batch_size = 32  # how many independent sequences will be processed in parallel
+block_size = 512  # maximum context length (tokens)
+max_iters = 300
 eval_intervals = 100
-learning_rate = 1e-5
-eval_iters = 200
+learning_rate = 1e-4
+weight_decay = 1e-4
+eval_iters = 200  # for loss computation
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 n_embd = 384  # dimension of token embedding
 n_head = 6
 n_layer = 6
-dropout = 0.3
-vocab_size = 5000
+dropout = 0.2
+vocab_size = 3000  # change extract_data.py as well
+
 # ----------------------------------------
 
 

@@ -12,18 +12,19 @@ import extract_data
 # ---------------------------------------------------------------------------------
 
 # hyperparameters for training (same as gpt.py)
-batch_size = 16  # how many independent sequences will be processed in parallel
-block_size = 256  # maximum context length (tokens)
-max_iters = 5000
+batch_size = 32  # how many independent sequences will be processed in parallel
+block_size = 512  # maximum context length (tokens)
+max_iters = 300
 eval_intervals = 100
-learning_rate = 1e-5
-eval_iters = 200
+learning_rate = 1e-4
+weight_decay = 1e-4
+eval_iters = 200  # for loss computation
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 n_embd = 384  # dimension of token embedding
 n_head = 6
 n_layer = 6
-dropout = 0.3
-vocab_size = 5000
+dropout = 0.2
+vocab_size = 3000  # change extract_data.py as well
 
 # ---------------------------------------------------------------------------------
 
@@ -90,7 +91,7 @@ def estimate_loss(
 
 def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    train_data, val_data = extract_data.extract_lyrics(device)
+    train_data, val_data, bpe_tokenizer = extract_data.extract_lyrics(device)
     x_train, y_train = utils.get_batch(train_data, block_size, batch_size, device)
     x_val, y_val = utils.get_batch(val_data, block_size, batch_size, device)
 
@@ -100,7 +101,7 @@ def main():
 
     # create optimizer
     optimizer = torch.optim.AdamW(
-        model.parameters(), lr=learning_rate, weight_decay=1e-2, eps=1e-8
+        model.parameters(), lr=learning_rate, weight_decay=weight_decay, eps=1e-8
     )
 
     train(
@@ -114,6 +115,15 @@ def main():
         max_iters,
         eval_intervals,
     )
+    # create blank context
+    context = torch.zeros((1, 1), dtype=torch.long, device=device)
+
+    # generate tokens
+    output_tokens = model.generate(context, max_new_tokens=100)
+
+    output_tokens = output_tokens.squeeze(0)
+    decoded_text = bpe_tokenizer.decode(output_tokens.tolist())
+    print(decoded_text)
 
 
 # ---------------------------------------------------------------------------------
