@@ -75,6 +75,37 @@ def extract_lyrics(device):
     return train_data, val_data, bpe_tokenizer
 
 
+def extract_lyrics_v2(device):
+    # open lyrics text file
+    with open("Text File/lyrics_data.txt", "r", encoding="utf-8") as file:
+        text = file.read()
+
+    # Join the found text into a single string
+    lyrics_data = "\n".join(text)
+
+    # create tokenizer
+    bpe_tokenizer = train_tokens.train_tokenizer(
+        input_files=["Text File/lyrics_data.txt"],
+        vocab_size=5000,
+        tokenizer_type="bpe",
+    )
+
+    # Tokenize the rap lyrics using the trained tokenizer
+    bpe_tokenized_output = bpe_tokenizer.encode(lyrics_data)
+
+    # get the numerical ids of the encoded toknes
+    bpe_ids = bpe_tokenized_output.ids
+
+    # split the data into train and validation sets
+    train_data, val_data = utils.train_test_split(tokenizer_ids=bpe_ids, device=device)
+
+    print(f"Number of Tokens: {len(bpe_tokenized_output.ids)}")
+    print(
+        f"Number of tokens in Train Data: {train_data.shape[0]}, Number of tokens in Validation Data: {val_data.shape[0]}"
+    )
+    return train_data, val_data, bpe_tokenizer
+
+
 if __name__ == "__main__":
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    train_data, val_data = extract_lyrics(device)
+    train_data, val_data, bpe_tokenizer = extract_lyrics_v2(device)
