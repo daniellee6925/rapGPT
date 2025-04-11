@@ -21,7 +21,7 @@ n_embd = 384  # dimension of token embedding
 n_head = 6
 n_layer = 6
 dropout = 0.2
-vocab_size = 3000  # change extract_data.py as well
+vocab_size = 3000
 
 # ----------------------------------------
 

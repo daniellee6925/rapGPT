@@ -24,7 +24,7 @@ n_embd = 384  # dimension of token embedding
 n_head = 6
 n_layer = 6
 dropout = 0.2
-vocab_size = 3000  # change extract_data.py as well
+vocab_size = 3000
 
 # ---------------------------------------------------------------------------------
 
@@ -41,6 +41,9 @@ def train(
     max_iters: int = 5000,
     eval_intervals: int = 500,
 ):
+    total_params = sum(p.numel() for p in model.parameters())
+    print(f"Total parameters: {total_params:,}")
+
     for iter in range(max_iters):
         xt, yt = x_train.to(device), y_train.to(device)
         xv, yv = x_val.to(device), y_val.to(device)
@@ -48,9 +51,6 @@ def train(
             "NaN in inputs:"
         )
         _, loss = model(xt, yt)
-
-        total_params = sum(p.numel() for p in model.parameters())
-        print(f"Total parameters: {total_params:,}")
 
         optimizer.zero_grad(set_to_none=True)
         loss.backward()
