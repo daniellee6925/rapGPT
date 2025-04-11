@@ -94,7 +94,9 @@ def estimate_loss(
 
 def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    train_data, val_data, bpe_tokenizer = extract_data.extract_lyrics(device)
+    train_data, val_data, bpe_tokenizer = extract_data.extract_lyrics_v2(
+        vocab_size, device
+    )
     x_train, y_train = utils.get_batch(train_data, block_size, batch_size, device)
     x_val, y_val = utils.get_batch(val_data, block_size, batch_size, device)
 

@@ -9,7 +9,7 @@ import re
 import torch
 
 
-def extract_lyrics(device):
+def extract_lyrics(vocab_size, device):
     # read in data using pandas
     PATH = "Raw Data/Eminem_Lyrics.csv"
     data = pd.read_csv(PATH, sep="\t", comment="#", encoding="ISO-8859-1")
@@ -54,7 +54,7 @@ def extract_lyrics(device):
     # create tokenizer
     bpe_tokenizer = train_tokens.train_tokenizer(
         input_files=["Text File/cleaned_verse_only.txt"],
-        vocab_size=3000,
+        vocab_size=vocab_size,
         tokenizer_type="bpe",
     )
 
@@ -75,7 +75,7 @@ def extract_lyrics(device):
     return train_data, val_data, bpe_tokenizer
 
 
-def extract_lyrics_v2(device):
+def extract_lyrics_v2(vocab_size, device):
     # open lyrics text file
     with open("Text File/lyrics_data.txt", "r", encoding="utf-8") as file:
         text = file.read()
@@ -86,7 +86,7 @@ def extract_lyrics_v2(device):
     # create tokenizer
     bpe_tokenizer = train_tokens.train_tokenizer(
         input_files=["Text File/lyrics_data.txt"],
-        vocab_size=5000,
+        vocab_size=vocab_size,
         tokenizer_type="bpe",
     )
 
