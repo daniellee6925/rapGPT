@@ -1,0 +1,48 @@
+Classes
+
+
+Head
+    Key, Query, Value =  Linear(n_embd, head_size)
+    Buffer('Tril') = torch.tril(torch.ones(seq_len, seq_len))
+
+    forward (x, head_size)
+    k = key(x)
+    q = query(x)
+    v = value(x)
+
+    attn_score = q @ k.transpose(-2, -1) * C **0.5
+    mask future tokens
+    compute softmax
+    v @ attn_score 
+
+
+MultiheadAttention
+    num_heads, head_size
+    create heads for num_heads using nn.ModuleList
+    projection = Linear(n_embd, n_embd)
+
+    forward
+    x = compute heads and concatenate in dim -1 
+    x = proj(x)
+
+FeedForward
+    n_embd
+    nn.Sequential
+    Linear(n_embd, n_embd * 4)
+    ReLU() - activation
+    Liner(n_embd * 4, n_embd)
+
+    forward 
+    net(x)
+
+
+Block
+    n_embd, head_size
+    calc head_size
+    create self_attention using MultiheadAttention
+    create FeedForward using FeedForward
+    create two layerNorms 
+    
+    forward
+    x = self_attention(ln1(x)) + x
+    x = FeedForward(ln2(x)) + x
